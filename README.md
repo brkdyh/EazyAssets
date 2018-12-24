@@ -8,7 +8,7 @@ EazyAssets是一款极轻量的框架，集成了最常用的资源管理功能�
 
 # 安装 #
 ***
-EazyAssets安装极为简单，只需下载[**EazyAssets资源包**](https://github.com/brkdyh/OpenGL_Learn)导入到Unity工程中即可。
+EazyAssets安装极为简单，只需下载[**EazyAssets资源包**](https://github.com/brkdyh/EazyAssets/releases)导入到Unity工程中即可。
 
 # 使用说明 #
 ***
