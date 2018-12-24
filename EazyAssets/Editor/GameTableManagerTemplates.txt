@@ -1,0 +1,100 @@
+/*******************************************************
+*			GameTableManager 模板源码				   *
+********************************************************/
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Text;
+using System.IO;
+
+/// <summary>
+/// 配置表管理器
+/// </summary>
+public partial class GameTableManager : Singleton<GameTableManager>
+{
+#if UNITY_EDITOR || UNITY_STANDALONE
+    public static readonly string TABLES_LOAD_PATH = @"Tables\";
+#elif UNITY_ANDROID
+    public static readonly string TABLES_LOAD_PATH = @"Tables\";
+#endif
+    public Dictionary<Type, BaseTable> Tables = new Dictionary<Type, BaseTable>();
+
+    public T GetTable<T>()
+        where T : BaseTable
+    {
+        Type t = typeof(T);
+        if (Tables.ContainsKey(t))
+            return Tables[t] as T;
+
+        return null;
+    }
+    public override void Init(params object[] paramList)
+    {
+        base.Init(paramList);
+        RegisterTables();
+    }
+
+    public void LoadAllTables()
+    {
+        foreach (var table in Tables)
+        {
+            BaseTable baseTable = table.Value;
+            ////暂时使用Resources加载
+            //TextAsset text = Resources.Load<TextAsset>(TABLES_LOAD_PATH + baseTable.GetTableName());
+
+            //修改为AssetsManager加载
+            TextAsset text = Assets.Script.AssetManager.GetSinglton().GetText(baseTable.GetTableName() + ".csv");
+
+            //Debug.LogError(baseTable.GetTableName());
+            if (text != null)
+            {
+                string sText = Encoding.UTF8.GetString(text.bytes);
+                StringReader rd = new StringReader(sText);
+                //Debug.Log(sText);
+                using (rd)
+                {
+                    //跳过表头注释等前三行
+                    rd.ReadLine();
+                    rd.ReadLine();
+                    rd.ReadLine();
+
+                    //读取数据内容
+                    string content = rd.ReadLine();
+                    //Debug.Log(content);
+                    while (content != null)
+                    {
+                        baseTable.LoadData(content);
+                        content = rd.ReadLine();
+                        //Debug.Log(content);
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogError("表格加载错误：找不到表格文件" + baseTable.GetTableName());
+            }
+        }
+    }
+
+    public BaseTable GetTableByString(string TableName)
+    {
+        Type t = Type.GetType(TableName);
+        if (Tables.ContainsKey(t))
+            return Tables[t];
+        return null;
+    }
+}
+
+//抽象类型容器
+public class BaseTable
+{
+    public virtual void LoadData(string content) { }
+
+    public virtual string GetTableName() { return string.Empty; }
+
+    public virtual Table_Data GetBaseData(int ID) { return null; }
+
+    public abstract class Table_Data { };
+}

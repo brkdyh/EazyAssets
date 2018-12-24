@@ -18,3 +18,4 @@ EazyAssets安装极为简单，只需下载[**EazyAssets资源包**](https://git
 # 文档 #
 ***
 
+# EazyAssets
